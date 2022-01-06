@@ -140,19 +140,85 @@ d3.xml("./got-graph.graphml.xml").then(function(data){
         .attr('y2',function(d){ return   d.target.y})
   }
   
+  //DRAG 
+  node.call(
+    d3.drag()
+        .on("start", dragstarted)
+        .on("drag", dragged)
+        .on("end", dragended)
+  );
+
+  function dragstarted(d) {
+    d3.event.sourceEvent.stopPropagation();
+    if (!d3.event.active) force.alphaTarget(0.3).restart();
+    d.fx = d.x;
+    d.fy = d.y;
+  }
+
+function dragged(d) {
+    d.fx = d3.event.x;
+    d.fy = d3.event.y;
+  }
+
+function dragended(d) {
+    if (!d3.event.active) force.alphaTarget(0);
+    d.fx = null;
+    d.fy = null;
+  }
+
+  //FINE DRAG
   
+  var adjlist = [];
+  function neigh(a, b) {
+    return a == b || adjlist[a + "-" + b];
+  }
+
   //the tooltip with the name of the character is going to show up
   function mouseoverHandler (d) {
      tooltip.transition().style('opacity', .9)
      tooltip.html('<p>' + d["name"] + '</p>' );
+
+     var index = d3.select(d3.event.target).datum().index;
+    node.style("opacity", function(o) {
+        return neigh(index, o.index) ? 1 : 0.1;
+    });
+    link.style("opacity", function(o) {
+        return o.source.index == index || o.target.index == index ? 1 : 0.1;
+    });
   }
+
   //leaving a flag
   //the tooltip will disappear
   function mouseoutHandler (d) {
       tooltip.transition().style('opacity', 0);
+
+      labelNode.attr("display", "block");
+      node.style("opacity", 1);
+      link.style("opacity", 1);
   }
 
   function mouseMoving (d) {
       tooltip.style("top", (d3.event.pageY-10)+"px").style("left",(d3.event.pageX+10)+"px").style("color","white");
   }
+
+  
+  /*node.on("mouseover", focus).on("mouseout", unfocus);
+  function focus(d) {
+    var index = d3.select(d3.event.target).datum().index;
+    node.style("opacity", function(o) {
+        return neigh(index, o.index) ? 1 : 0.1;
+    });
+    labelNode.attr("display", function(o) {
+      return neigh(index, o.node.index) ? "block": "none";
+    });
+    link.style("opacity", function(o) {
+        return o.source.index == index || o.target.index == index ? 1 : 0.1;
+    });
+}
+
+function unfocus() {
+   labelNode.attr("display", "block");
+   node.style("opacity", 1);
+   link.style("opacity", 1);
+}*/
 })
