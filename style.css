@@ -1,0 +1,58 @@
+body {
+  background-color: lightgray;
+  /* background-image: url("./dragon_fly.jpg");   */
+}
+
+h1, h3, p {
+  text-align: center;
+}
+
+#container {
+  margin: auto;
+}
+
+.link {
+  stroke: black;
+}
+
+.node {
+  fill: #000;
+  stroke: #fff;
+  stroke-width: 1.5px;
+}
+
+.node:hover {
+  fill: #1ee;
+}
+
+.tooltip {
+  background-color: orangered;
+  color: white;
+  width: 90px;
+}
+
+/*
+ * Footer
+ */
+a:link {
+  color: orangered;
+  text-decoration: none;
+}
+
+a:visited {
+  color: orangered;
+  text-decoration: none;
+}
+
+a:hover {
+  color: red;
+  text-decoration: underline;
+}
+
+.tableFooter {
+  margin-top: 15px;
+}
+
+.footerSvg {
+  width: 32px;
+}
