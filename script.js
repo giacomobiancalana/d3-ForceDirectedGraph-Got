@@ -105,15 +105,15 @@ d3.xml("./got-graph.graphml.xml").then(function(data){
 // coordinates, the lines won't even be visible, but the
 // markup will be sitting inside the SVG container ready
 // and waiting for the force layout.
-  var link = svg
-          .append("g")
+var container = svg.append("g");
+
+  var link = container
           .selectAll('.link')
           .data(links)
           .enter().append('line')
           .attr("class","link");
 
-  var node = svg
-          .append("g")
+  var node = container
           .attr("class", "node")
           .selectAll("circle")
           .data(nodes)
@@ -173,6 +173,17 @@ function dragended(d) {
     return a == b || adjlist[a + "-" + b];
   }
 
+  var labelNode = container.append("g").attr("class", "labelNodes")
+    .selectAll("text")
+    .data(nodes)
+    .enter()
+    .append("text")
+    .text(function(d, i) { return i % 2 == 0 ? "" : d.id; })
+    .style("fill", "#555")
+    .style("font-family", "Arial")
+    .style("font-size", 12)
+    .style("pointer-events", "none"); // to prevent mouseover/drag capture
+
   //the tooltip with the name of the character is going to show up
   function mouseoverHandler (d) {
      tooltip.transition().style('opacity', .9)
@@ -181,6 +192,9 @@ function dragended(d) {
      var index = d3.select(d3.event.target).datum().index;
     node.style("opacity", function(o) {
         return neigh(index, o.index) ? 1 : 0.1;
+    });
+    labelNode.attr("display", function(o) {
+      return neigh(index, o.id.index) ? "block": "none";
     });
     link.style("opacity", function(o) {
         return o.source.index == index || o.target.index == index ? 1 : 0.1;
@@ -191,7 +205,6 @@ function dragended(d) {
   //the tooltip will disappear
   function mouseoutHandler (d) {
       tooltip.transition().style('opacity', 0);
-
       labelNode.attr("display", "block");
       node.style("opacity", 1);
       link.style("opacity", 1);
