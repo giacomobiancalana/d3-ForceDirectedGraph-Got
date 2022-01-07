@@ -169,9 +169,14 @@ function dragended(d) {
   //FINE DRAG
   
   var adjlist = [];
-  function neigh(a, b) {
+  links.forEach(function(d) {
+    adjlist[d.source.index + "-" + d.target.index] = true;
+    adjlist[d.target.index + "-" + d.source.index] = true;
+});
+
+function neigh(a, b) {
     return a == b || adjlist[a + "-" + b];
-  }
+}
 
   var labelNode = container.append("g").attr("class", "labelNodes")
     .selectAll("text")
@@ -215,23 +220,6 @@ function dragended(d) {
   }
 
   
-  /*node.on("mouseover", focus).on("mouseout", unfocus);
-  function focus(d) {
-    var index = d3.select(d3.event.target).datum().index;
-    node.style("opacity", function(o) {
-        return neigh(index, o.index) ? 1 : 0.1;
-    });
-    labelNode.attr("display", function(o) {
-      return neigh(index, o.node.index) ? "block": "none";
-    });
-    link.style("opacity", function(o) {
-        return o.source.index == index || o.target.index == index ? 1 : 0.1;
-    });
-}
+ 
 
-function unfocus() {
-   labelNode.attr("display", "block");
-   node.style("opacity", 1);
-   link.style("opacity", 1);
-}*/
 })
