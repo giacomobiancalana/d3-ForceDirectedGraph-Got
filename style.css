@@ -3,8 +3,27 @@ body {
   /* background-image: url("./dragon_fly.jpg");   */
 }
 
-h1, h3, p {
+/*h1, h3, p {
   text-align: center;
+}*/
+
+.container {
+  
+  padding: 20px;
+  height: 100%;
+  width: 100%;
+}
+
+.graph, .relation_info {  /* ho modificato questa*/
+  width: 50%;
+  height: 100%;
+  float: left;
+  padding: 20px;
+  
+}  
+
+.relation_info { /* e ho aggiunto questa*/
+  position: absolute;
 }
 
 #container {
@@ -56,3 +75,12 @@ a:hover {
 .footerSvg {
   width: 32px;
 }
+
+.info, .neighborinfo {
+  color: rgb(19, 13, 105);
+  text-align: right;
+  text-align: center;
+  margin: 20px;
+  font-size: 20px;
+}
+

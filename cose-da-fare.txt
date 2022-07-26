@@ -1,0 +1,6 @@
+- etichette vicini si devono illuminare col mouse hover
+- background
+- si vede bene per intero
+- legenda che si deve vedere sempre, al massimo si illumina il cognome col mouse over
+- pagina readme o about
+- etichetta si deve muovere col cerchietto, una volta che il cursore si muove
