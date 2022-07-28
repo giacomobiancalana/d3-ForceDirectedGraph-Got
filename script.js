@@ -27,11 +27,21 @@ for (i = 0; i<nodesXml.length; i++) {
   
 
   var n = {'id': id,'name': name, 'status': status};
+  
+  //aggiunta alex
+  var cHouse=  0;
+  
+  //fino qu
 
   var nodesData = nodesXml[i].getElementsByTagName("data");
   for (j=0; j<nodesData.length; j++){
     if (nodesData[j].getAttribute("key") == 'house-birth'){
-      n['house-birth'] = nodesData[j].textContent;
+      n['house-birth'] = nodesData[j].textContent; 
+      //aggiunta ALEx
+      if(n['house-birth' == 'House Arryn'])
+       cHouse++;
+       //fino qui
+      
     }
   }
   for (j=0; j<nodesData.length; j++){
@@ -46,6 +56,9 @@ for (i = 0; i<nodesXml.length; i++) {
   }
   
   nodes.push(n);
+
+ 
+  
 }
 
 // ottengo graph con parentNode 
@@ -223,6 +236,8 @@ function mouseoverHandler (d) {
     }
 
   }
+  
+  
   //console.log(neighborLinkS);
   var info = d3.select(".container").append("div").attr("class", "relation_info").append("div");
   info.append("p").attr("class", "info").text("Status: "+d["status"]);
@@ -247,6 +262,8 @@ function mouseoverHandler (d) {
     } else {
       return (type+" of "+targetN);
     }  
+
+    
   });
   //target links
   info2.selectAll("p").data(neighborLinkT).enter().append("p").attr("class", "neighborinfo").text(function(j){
@@ -265,7 +282,38 @@ function mouseoverHandler (d) {
       return (sourceN+" is their "+type);
     }
   })
+
+  
 }
+
+//aggiunta alex
+var colorList = {Baratheon: 'red', None: 'green', Arryn: 'blue',
+Stark: 'orange', Bolton: 'rgb(69, 40, 40)', Greyjoy: 'purple', Reed: 'rgb(0, 191, 255)',
+Lannister: 'pink'
+};
+              
+colorize = function(colorList) {
+    var container = document.getElementById('legend');
+  
+    for (var key in colorList) {
+        var boxContainer = document.createElement("DIV");
+        var box = document.createElement("DIV");
+        var label = document.createElement("SPAN");
+
+        label.innerHTML = key;
+        box.className = "box";
+        box.style.backgroundColor = colorList[key];
+
+        boxContainer.appendChild(box);
+        boxContainer.appendChild(label);
+
+        container.appendChild(boxContainer);
+
+   }
+}
+
+colorize(colorList);
+//fino qui
 
 //leaving a flag
 //the tooltip will disappear
@@ -284,8 +332,11 @@ function mouseMoving (d) {
     tooltip.style("top", (d3.event.pageY-10)+"px").style("left",(d3.event.pageX+10)+"px").style("color","white");
 }
 
+
+
 //console.log(node["_groups"]);
 //console.log(typeof(node["_groups"]));
 console.log(links[67]["source"]["id"]);
 
-})
+});
+
