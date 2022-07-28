@@ -288,8 +288,8 @@ function mouseoverHandler (d) {
 
 //aggiunta alex
 var colorList = {Baratheon: 'red', None: 'green', Arryn: 'blue',
-Stark: 'orange', Bolton: 'rgb(69, 40, 40)', Greyjoy: 'purple', Reed: 'rgb(0, 191, 255)',
-Lannister: 'pink'
+Stark: 'orange', Bolton: 'rgb(62, 28, 28)', Greyjoy: 'purple', Reed: 'rgb(0, 191, 255)',
+Lannister: 'pink', Mormont: 'grey', Martell: 'rgb(95, 109, 43)'
 };
               
 colorize = function(colorList) {
