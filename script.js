@@ -121,7 +121,11 @@ var force = d3.forceSimulation(nodes) //d3.values(nodes) è lo stesso qua
 // markup will be sitting inside the SVG container ready
 // and waiting for the force layout.
 var container = svg.append("g");
-
+svg.call(
+  d3.zoom()
+      .scaleExtent([.1, 4])
+      .on("zoom", function() { container.attr("transform", d3.event.transform); })
+);
 var link = container
         .selectAll('.link')
         .data(links)
