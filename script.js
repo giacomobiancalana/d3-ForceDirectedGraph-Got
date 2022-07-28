@@ -287,9 +287,9 @@ function mouseoverHandler (d) {
 }
 
 //aggiunta alex
-var colorList = {Baratheon: 'red', None: 'green', Arryn: 'blue',
-Stark: 'orange', Bolton: 'rgb(62, 28, 28)', Greyjoy: 'purple', Reed: 'rgb(0, 191, 255)',
-Lannister: 'pink', Mormont: 'grey', Martell: 'rgb(95, 109, 43)'
+var colorList = {Baratheon: 'rgb(231,0,0)', Arryn: 'rgb(0,117,183)',
+Stark: 'rgb(255,113,0)', Bolton: 'rgb(147,80,71)', Greyjoy: 'rgb(159,86,190)', Reed: 'rgb(0, 191, 255)',
+Lannister: 'rgb(228,87,181)', Mormont: 'rgb(127,127,127)', Martell: 'rgb(183, 196, 0)',None: 'rgb(0,170,44)'
 };
               
 colorize = function(colorList) {
@@ -300,7 +300,7 @@ colorize = function(colorList) {
         var box = document.createElement("DIV");
         var label = document.createElement("SPAN");
 
-        label.innerHTML = key;
+        label.innerHTML = " "+key;
         box.className = "box";
         box.style.backgroundColor = colorList[key];
 
@@ -336,7 +336,7 @@ function mouseMoving (d) {
 
 //console.log(node["_groups"]);
 //console.log(typeof(node["_groups"]));
-console.log(links[67]["source"]["id"]);
+//console.log(links[67]["source"]["id"]);
 
 });
 
