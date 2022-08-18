@@ -1,7 +1,8 @@
 # d3-ForceDirectedGraph-Got
-
-" git clone https://github.com/giacomobiancalana/d3-ForceDirectedGraph-Got.git " 
-  per clonare il progetto.
+Per clonare il progetto:
+```
+git clone https://github.com/giacomobiancalana/d3-ForceDirectedGraph-Got.git
+```
 
 ## Descrizione
 Il progetto consiste in un algoritmo Force Directed ottenuto tramite la libreria javascript D3.
