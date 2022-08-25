@@ -5,31 +5,34 @@ var color = d3.scaleOrdinal().range(['#9a6324', '#3cb44b', '#e6c700', '#4363d8',
 '#911eb4', '#42d4f4', '#f032e6', '#bfef45', '#f2acb9', '#469990', '#e6194b', '#800000',
 '#808000', '#000075', '#6f7378']); //add color variable
 //SVG container
-var svg = d3.select(".container").append("div").attr("class", "graph").append("svg")
+var svg = d3.select(".htmlcontainer").append("div").attr("class", "graph").append("svg")
 .attr("id", "svgId")
 .attr("width",width)
 .attr("height",height);
 
-//create the tooltip that holds the character name
+//create the label that holds the character name
 var tooltip = d3.select('body').select(".graph").append('div') .attr("class","tooltip");
 
 var nodes = new Array();
 var links = new Array();
 var nodesXml;
 var linksXml;
+var linksData;
 
 
 d3.xml("./got-graph.graphml.xml").then(function(data){ 
 // Extract the nodes and links from the data.
 nodesXml = data.getElementsByTagName("node"); //grab content from every "node" tag
 for (i = 0; i<nodesXml.length; i++) {
+  // extract the attribute key from data tags if key = status
   var status = data.querySelectorAll('data[key="status"]')[i].textContent;
+  // extract the attribute key from data tags if key = name
   var name = data.querySelectorAll('data[key="name"]')[i].textContent;
   var id = nodesXml[i].getAttribute("id");
   var n = {'id': id,'name': name, 'status': status};
   
-
-  var nodesData = nodesXml[i].getElementsByTagName("data");
+  var nodesData = nodesXml[i].getElementsByTagName("data"); //collect every data tag
+  //add optional features for each node
   for (j=0; j<nodesData.length; j++){
     if (nodesData[j].getAttribute("key") == 'house-birth'){
       n['house-birth'] = nodesData[j].textContent;   
@@ -54,17 +57,18 @@ for (k = 0; k < nodes.length; k++){
   }
 }
 
-console.log(nodesData.length);
+/*console.log(nodesData.length);
 console.log(nodesXml);
-console.log(nodesData);
+console.log(nodesData);*/
 
 var houses = new Array();
 for (k = 0; k < nodes.length; k++){
   houses.push(nodes[k]['house-birth']); 
 }
 
-console.log(houses);
+//console.log(houses);
 
+//housecount is a data structure that contains the number of occurrences for each house
 var housecount = new Map();
 for (k = 0; k < nodes.length; k++){
   var currentHouse = nodes[k]['house-birth'];
@@ -72,8 +76,10 @@ for (k = 0; k < nodes.length; k++){
   housecount.set(currentHouse, isNaN(count) ? 1 : ++count);
 }
 
-console.log(housecount);
+//console.log(housecount);
 
+//the array otherHouses stores the list of houses with a single occurrence. These houses will merge
+//in the "Other" category.
 var otherHouses = new Array();
 housecount.forEach((value, key) => {
   if(value == 1){
@@ -81,7 +87,8 @@ housecount.forEach((value, key) => {
   }
 })
 
-console.log(otherHouses);
+//console.log(otherHouses);
+
 for (k = 0; k < otherHouses.length; k++){
   for (j = 0; j < nodes.length; j++){
     if (otherHouses[k] == nodes[j]['house-birth']){
@@ -90,34 +97,26 @@ for (k = 0; k < otherHouses.length; k++){
   }
 }
 
-console.log(nodes);
+//console.log(nodes);
 
-
-
-// ottengo graph con parentNode 
-//nodes = nodes[0].parentNode;
-
-
-// linksXml sono tutti i vari <edge> del file xml,
-// mentre linksData sono i vari <data> all'interno degli <edge>
+// linksXml stores all edge tag elements from the xml file
+// linksData stores data tags that lie inside edge tags
 linksXml = data.getElementsByTagName("edge");
 for (i = 0; i<linksXml.length; i++) {
   var source = linksXml[i].getAttribute("source");
   source = parseInt(source);
   var target = linksXml[i].getAttribute("target");
   target = parseInt(target);
-  var linksData = linksXml[i].getElementsByTagName("data");
+  linksData = linksXml[i].getElementsByTagName("data");
   var e = {"source": source, "target": target};
   if (linksXml[i].getAttribute("directed") == "false") {
     e["directed"] = "false";
   }
   
-  for (j=0; j<linksData.length; j++) {
+  for (j=0; j<linksData.length; j++) { 
     if (linksData[j].getAttribute("key") == "relation") {
       e["relation"] = linksData[j].textContent;
     }
-  }
-  for (j=0; j<linksData.length; j++) {
     if (linksData[j].getAttribute("key") == "type") {
       e["type"] = linksData[j].textContent;
     }
@@ -126,34 +125,21 @@ for (i = 0; i<linksXml.length; i++) {
 }
 
 // Force layout
-var force = d3.forceSimulation(nodes) //d3.values(nodes) è lo stesso qua
+var force = d3.forceSimulation(nodes) 
   .force("charge", d3.forceManyBody().strength(-100))
-  .force("link", d3.forceLink(links)) //.strength(0)
-  .force("center", d3.forceCenter($("#svgId").width() / 2, $("#svgId").height() / 2))
-  // .charge([-600]) // inizio era [-600]
-  // .chargeDistance(4000) // inizio era 400
-  // .nodes(d3.values(nodes)) 
-  // .links(links)
+  .force("link", d3.forceLink(links).strength(0.28))
+  .force("center", d3.forceCenter($("#svgId").width() / 2.3, $("#svgId").height() / 2.7))
   .on("tick",tick)
-  // .linkDistance(100)
-  // .start();
 
 // Next we'll add the nodes and links to the visualization.
 // Note that we're just sticking them into the SVG container
 // at this point. We start with the links. The order here is
 // important because we want the nodes to appear "on top of"
-// the links. SVG doesn't really have a convenient equivalent
-// to HTML's `z-index`; instead it relies on the order of the
-// elements in the markup. By adding the nodes _after_ the
-// links, we ensure that nodes appear on top of links.
+// the links. SVG relies on the order of the elements in the 
+// markup. By adding the nodes after the links, we ensure
+// that nodes appear on top of links.
 
-// Links are pretty simple. They're just SVG lines, and
-// we're not even going to specify their coordinates. (We'll
-// let the force layout take care of that.) Without any
-// coordinates, the lines won't even be visible, but the
-// markup will be sitting inside the SVG container ready
-// and waiting for the force layout.
-var container = svg.append("g");
+var container = svg.append("g"); //container of svg elements
 svg.call(
   d3.zoom()
       .scaleExtent([.1, 4])
@@ -175,23 +161,21 @@ var node = container
         .attr("fill", function(d) {
           if ( color(d["house-birth"]) == null) {
             console.log(1);
-          } else return color(d["house-birth"]); //colore in base all'attributo specificato
+          } else return color(d["house-birth"]); //colore in base all'attributo specificato CONTROLLA
         })
-        // .on('mouseover', console.log("provaaaaa"))
         .on('mouseover', mouseoverHandler)
         .on("mousemove",mouseMoving)
         .on("mouseout", mouseoutHandler);
 
+//to update the location of circles and lines at each step of the simulation
+function tick(){
+   node.attr("cx", function(d) { return d.x; })
+   .attr("cy", function(d) { return d.y; })
 
-function tick(e){
-   node.attr("cx", function(d) {  return d.x; })
-   .attr("cy", function(d) {   return d.y; })
-  //  .call(force.drag);
-
-  link.attr('x1', function(d){ return  d.source.x})
-      .attr('y1',function(d){ return  d.source.y})
-      .attr('x2', function(d){ return  d.target.x})
-      .attr('y2',function(d){ return   d.target.y})
+   link.attr('x1', function(d){ return d.source.x; })
+  .attr('y1',function(d){ return d.source.y; })
+  .attr('x2', function(d){ return d.target.x; })
+  .attr('y2',function(d){ return d.target.y; })
 }
 
 //DRAG 
@@ -203,8 +187,8 @@ node.call(
 );
 
 function dragstarted(d) {
-  d3.event.sourceEvent.stopPropagation();
-  if (!d3.event.active) force.alphaTarget(0.3).restart();
+  d3.event.sourceEvent.stopPropagation(); //prevents the parent tag from moving
+  if (!d3.event.active) force.alphaTarget(0.6).restart();
   d.fx = d.x;
   d.fy = d.y;
 }
@@ -228,40 +212,26 @@ links.forEach(function(d) {
   adjlist[d.target.index + "-" + d.source.index] = true;
 });
 
-function neigh(a, b) {
+//console.log(adjlist);
+
+function neighbor(a, b) {
   return a == b || adjlist[a + "-" + b];
 }
 
-var labelNode = container.append("g").attr("class", "labelNodes")
-  .selectAll("text")
-  .data(nodes)
-  .enter()
-  .append("text")
-  .text(function(d, i) { return i % 2 == 0 ? "" : d.id; })
-  .style("fill", "#555")
-  .style("font-family", "Arial")
-  .style("font-size", 12)
-  .style("pointer-events", "none"); // to prevent mouseover/drag capture
-
-
-  var neighborLinkS = new Array();
-  var neighborLinkT = new Array();
-
+var neighborLinkS = new Array();
+var neighborLinkT = new Array();
 
 //the tooltip with the name of the character is going to show up
 function mouseoverHandler (d) {
-   tooltip.transition().style('opacity', .9)
-   tooltip.html('<p>' + d["name"] + '</p>' );
+  tooltip.transition().style('opacity', .9)
+  tooltip.html('<p>' + d["name"] + '</p>' );
 
-   var index = d3.select(d3.event.target).datum().index;
+  var index = d3.select(d3.event.target).datum().index;
   node.style("opacity", function(o) {
-      return neigh(index, o.index) ? 1 : 0.1;
-  });
-  labelNode.attr("display", function(o) {
-    return neigh(index, o.id.index) ? "block": "none";
+    return neighbor(index, o.index) ? 1 : 0.1;
   });
   link.style("opacity", function(o) {
-      return o.source.index == index || o.target.index == index ? 1 : 0.1;
+    return o.source.index == index || o.target.index == index ? 1 : 0.1;
   });
   var currentID = d["id"];
   
@@ -274,17 +244,16 @@ function mouseoverHandler (d) {
 
   }
   
-  
   //console.log(neighborLinkS);
-  var info = d3.select(".container").append("div").attr("class", "relation_info").append("div");
-  info.append("p").attr("class", "info").text("Status: "+d["status"]);
-  var info2 = d3.select(".container").select(".relation_info").append("div");
+  var status_info = d3.select(".htmlcontainer").append("div").attr("class", "relation_info").append("div");
+  status_info.append("p").attr("class", "info").text("Status: "+d["status"]);
+  var other_info = d3.select(".htmlcontainer").select(".relation_info").append("div");
   var relation;
   var targetN;
   var sourceN;
   var type;
   //source links
-  info2.selectAll("p").data(neighborLinkS).enter().append("p").attr("class", "neighborinfo").text(function(j){
+  other_info.selectAll("p").data(neighborLinkS).enter().append("p").attr("class", "neighborinfo").text(function(j){
     relation = j["relation"];
     targetN = j["target"]["name"];
     type = j["type"];
@@ -299,11 +268,9 @@ function mouseoverHandler (d) {
     } else {
       return (type+" of "+targetN);
     }  
-
-    
   });
   //target links
-  info2.selectAll("p").data(neighborLinkT).enter().append("p").attr("class", "neighborinfo").text(function(j){
+  other_info.selectAll("p").data(neighborLinkT).enter().append("p").attr("class", "neighborinfo").text(function(j){
     relation = j["relation"];
     sourceN = j["source"]["name"];
     type = j["type"];
@@ -319,11 +286,8 @@ function mouseoverHandler (d) {
       return (sourceN+" is their "+type);
     }
   })
-
-  
 }
 
-//aggiunta alex
 var colorList = {Arryn: '#9a6324', Baratheon: '#4363d8', Bolton: '#000075', Clegane: '#3cb44b',
 Greyjoy: '#d76b00', Lannister: '#42d4f4', Martell: '#6f7378', Mormont: '#f032e6', Payne: '#bfef45',
 Reed: '#f2acb9', Sand: '#469990', Stark: '#e6194b', Targaryen: '#911eb4', Tully: '#808000', 
@@ -333,9 +297,9 @@ colorize = function(colorList) {
     var container = document.getElementById('legend');
   
     for (var key in colorList) {
-        var boxContainer = document.createElement("DIV");
-        var box = document.createElement("DIV");
-        var label = document.createElement("SPAN");
+        var boxContainer = document.createElement("div");
+        var box = document.createElement("div");
+        var label = document.createElement("span");
 
         label.innerHTML = " "+key;
         box.className = "box";
@@ -350,26 +314,20 @@ colorize = function(colorList) {
 }
 
 colorize(colorList);
-//fino qui
 
-//leaving a flag
-//the tooltip will disappear
-function mouseoutHandler (d) {
+function mouseoutHandler () {
     tooltip.transition().style('opacity', 0);
-    labelNode.attr("display", "block");
+    //labelNode.attr("display", "block");
     node.style("opacity", 1);
     link.style("opacity", 1);
     d3.select(".relation_info").remove();
     neighborLinkS.length = 0;
     neighborLinkT.length = 0;
-
 }
 
-function mouseMoving (d) {
+function mouseMoving () {
     tooltip.style("top", (d3.event.pageY-10)+"px").style("left",(d3.event.pageX+10)+"px").style("color","white");
 }
-
-
 
 //console.log(node["_groups"]);
 //console.log(typeof(node["_groups"]));

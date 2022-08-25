@@ -1,2 +1,6 @@
 # mac files
 .DS_Store
+
+# file vecchi
+file-vecchi/
+file-vecchi/**/*
